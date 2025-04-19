@@ -1,6 +1,8 @@
 package com.example.provas.controller;
 
+import com.example.provas.model.Categoria;
 import com.example.provas.model.Produto;
+import com.example.provas.repository.CategoriaRepository;
 import com.example.provas.service.ProdutoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +18,9 @@ public class ProdutoController {
     @Autowired
     private ProdutoService produtoService;
 
+    @Autowired
+    private CategoriaRepository categoriaRepository;
+
     @GetMapping
     public List<Produto> getAllProdutos() {
         return produtoService.findAll();
@@ -29,9 +34,18 @@ public class ProdutoController {
     }
 
     @PostMapping
-    public Produto createProduto(@RequestBody Produto produto) {
-        return produtoService.save(produto);
+    public ResponseEntity<Produto> save(@RequestBody Produto produto) {
+        if (produto.getCategoria() != null && produto.getCategoria().getId() != null) {
+            Categoria categoria = categoriaRepository.findById(produto.getCategoria().getId())
+            .orElseThrow(() -> new RuntimeException("Categoria não encontrada com ID: " + produto.getCategoria().getId()));
+        produto.setCategoria(categoria);
+    } else {
+        return ResponseEntity.badRequest().body(null);
     }
+
+    Produto produtoSalvo = produtoService.save(produto);
+    return ResponseEntity.ok(produtoSalvo);
+}
 
     @PutMapping("/{id}")
     public ResponseEntity<Produto> updateProduto(@PathVariable Long id, @RequestBody Produto produtoDetails) {
@@ -42,7 +56,12 @@ public class ProdutoController {
             produto.setNome(produtoDetails.getNome());
             produto.setDescricao(produtoDetails.getDescricao());
             produto.setQuantidade(produtoDetails.getQuantidade());
-            produto.setCategoria(produtoDetails.getCategoria());
+
+            if (produtoDetails.getCategoria() != null && produtoDetails.getCategoria().getId() != null) {
+                Categoria categoria = categoriaRepository.findById(produtoDetails.getCategoria().getId())
+                        .orElseThrow(() -> new RuntimeException("Categoria não encontrada com ID: " + produtoDetails.getCategoria().getId()));
+                produto.setCategoria(categoria);
+            }
 
             return ResponseEntity.ok(produtoService.save(produto));
         } else {
