@@ -1,13 +1,13 @@
-package com.example.demojwt;
+package com.example.demotrjwt;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class DemojwtApplication {
+public class DemotrjwtApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(DemojwtApplication.class, args);
+		SpringApplication.run(DemotrjwtApplication.class, args);
 	}
 
 }
